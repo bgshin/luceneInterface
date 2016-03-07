@@ -5,14 +5,14 @@
 * Compilation 
 
 ```bash
-git clone 
-cd luceneWrapper
+git clone git@github.com:bgshin/luceneInterface.git
+cd luceneInterface
 ant clean build jar
-cp ./bin/luceneWrapper.jar
+cp ./bin/luceneInterface.jar
 ```
 
-* Set classpath
-    * add the location of "luceneWrapper.jar" to ~/.bashrc 
+## Set classpath
+* add the location of "luceneWrapper.jar" to ~/.bashrc 
 
 
  
