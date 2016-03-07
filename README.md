@@ -12,7 +12,7 @@ cp ./bin/luceneInterface.jar
 ```
 
 ## Set classpath
-* add the location of "luceneWrapper.jar" to ~/.bashrc 
+* add the location of "luceneWrapper.jar" to ~/.bashrc or ~/.bash_profile
 
 
  
