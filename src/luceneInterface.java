@@ -42,36 +42,19 @@ public class luceneInterface {
     public luceneInterface(){
     }
 
-    public static  List<String> getStopwords(String stopFile) {
-        List<String> stopwords = new ArrayList<>();
-        String line;
-
-        try (FileReader fr = new FileReader(stopFile);
-             BufferedReader br = new BufferedReader(fr)) {
-            while ( (line = br.readLine()) != null ) {
-                stopwords.add(line.trim());
-            }
-            br.close();
-        }
-        catch (Exception ex) {
-            ex.printStackTrace();
-        }
-        return stopwords;
-    }
-
     public static void makeIndexWriter(String indexPath, String stopPath) throws IOException {
         System.out.println("[makeIndexWriter] started");
         System.out.println("[makeIndexWriter]"+stopPath);
         Directory dir = FSDirectory.open(Paths.get(indexPath));
         Analyzer analyzer = new EnglishAnalyzer(
-                StopFilter.makeStopSet(getStopwords(stopPath)));
+                StopFilter.makeStopSet(mygetStopwords(stopPath)));
         IndexWriterConfig iwc = new IndexWriterConfig(analyzer);
         writer = new IndexWriter(dir, iwc);
     }
 
 
     public static void indexDoc(String docid, String... args) throws IOException {
-        //        path, title, contents,...
+        //        docid, title, contents,...
         Document doc = new Document();
 
         Field pathField = new StringField("docid", docid, Field.Store.YES);
@@ -138,7 +121,7 @@ public class luceneInterface {
         return docs;
     }
 
-    public static  void query(String index, String stoppath, String question)  throws Exception  {
+    public static  void query(String index, String stoppath, String question, int numResult)  throws Exception  {
         IndexReader reader = DirectoryReader.open(FSDirectory.open(Paths.get(index)));
         IndexSearcher searcher = new IndexSearcher(reader);
 
@@ -150,13 +133,13 @@ public class luceneInterface {
         QueryParser parser = new QueryParser(field, analyzer);
         Query query = parser.parse(parser.escape(question));
 
-        TopDocs results = searcher.search(query, 5);
+        TopDocs results = searcher.search(query, numResult);
         ScoreDoc[] hits = results.scoreDocs;
 
         int numTotalHits = results.totalHits;
         System.out.println(numTotalHits + " total matching documents");
 
-        int end = Math.min(numTotalHits, 5);
+        int end = Math.min(numTotalHits, numResult);
 
         String searchResult="";
         System.out.println("Only results 1 - " + hits.length);
@@ -192,7 +175,7 @@ public class luceneInterface {
         lp.indexDoc("efg", "title",  "public int", "contents",  "public int world");
         writer.close();
 
-        lp.query(index,stopwords,"static");
+        lp.query(index,stopwords,"static", 5);
 
     }
 }
