@@ -88,40 +88,7 @@ public class luceneInterface {
         return stopwords;
     }
 
-    public static List<Document> query2(String index, String stoppath, String question)  throws Exception {
-        IndexReader reader = DirectoryReader.open(FSDirectory.open(Paths.get(index)));
-        IndexSearcher searcher = new IndexSearcher(reader);
-
-        Analyzer analyzer = new EnglishAnalyzer(
-                StopFilter.makeStopSet(mygetStopwords(stoppath)));
-
-        searcher.setSimilarity(new BM25Similarity());
-        String field = "contents";
-        QueryParser parser = new QueryParser(field, analyzer);
-        Query query = parser.parse(parser.escape(question));
-
-        TopDocs results = searcher.search(query, 5);
-        ScoreDoc[] hits = results.scoreDocs;
-        List<Document> docs = new ArrayList<Document>();
-
-        int numTotalHits = results.totalHits;
-        System.out.println(numTotalHits + " total matching documents");
-
-        int end = Math.min(numTotalHits, 5);
-
-        String searchResult = "";
-        System.out.println("Only results 1 - " + hits.length);
-
-
-        for (int i = 0; i < end; i++) {
-            Document doc = searcher.doc(hits[i].doc);
-            docs.add(doc);
-        }
-
-        return docs;
-    }
-
-    public static  void query(String index, String stoppath, String question, int numResult)  throws Exception  {
+    public static List<Document> query(String index, String stoppath, String question, int numResult)  throws Exception {
         IndexReader reader = DirectoryReader.open(FSDirectory.open(Paths.get(index)));
         IndexSearcher searcher = new IndexSearcher(reader);
 
@@ -135,31 +102,64 @@ public class luceneInterface {
 
         TopDocs results = searcher.search(query, numResult);
         ScoreDoc[] hits = results.scoreDocs;
+        List<Document> docs = new ArrayList<Document>();
 
         int numTotalHits = results.totalHits;
         System.out.println(numTotalHits + " total matching documents");
 
         int end = Math.min(numTotalHits, numResult);
 
-        String searchResult="";
+        String searchResult = "";
         System.out.println("Only results 1 - " + hits.length);
+
 
         for (int i = 0; i < end; i++) {
             Document doc = searcher.doc(hits[i].doc);
-            String path = doc.get("docid");
-
-            if (path != null) {
-                searchResult = question+"\t"+path + "\t"
-                        + (i+1) + "\t" + hits[i].score;
-                System.out.println(searchResult);
-            } else {
-                searchResult = (i+1) + ". " + "No path for this document";
-                System.out.println(searchResult);
-            }
-
+            docs.add(doc);
         }
 
+        return docs;
     }
+
+//    public static  void query(String index, String stoppath, String question, int numResult)  throws Exception  {
+//        IndexReader reader = DirectoryReader.open(FSDirectory.open(Paths.get(index)));
+//        IndexSearcher searcher = new IndexSearcher(reader);
+//
+//        Analyzer analyzer = new EnglishAnalyzer(
+//                StopFilter.makeStopSet(mygetStopwords(stoppath)));
+//
+//        searcher.setSimilarity(new BM25Similarity());
+//        String field = "contents";
+//        QueryParser parser = new QueryParser(field, analyzer);
+//        Query query = parser.parse(parser.escape(question));
+//
+//        TopDocs results = searcher.search(query, numResult);
+//        ScoreDoc[] hits = results.scoreDocs;
+//
+//        int numTotalHits = results.totalHits;
+//        System.out.println(numTotalHits + " total matching documents");
+//
+//        int end = Math.min(numTotalHits, numResult);
+//
+//        String searchResult="";
+//        System.out.println("Only results 1 - " + hits.length);
+//
+//        for (int i = 0; i < end; i++) {
+//            Document doc = searcher.doc(hits[i].doc);
+//            String path = doc.get("docid");
+//
+//            if (path != null) {
+//                searchResult = question+"\t"+path + "\t"
+//                        + (i+1) + "\t" + hits[i].score;
+//                System.out.println(searchResult);
+//            } else {
+//                searchResult = (i+1) + ". " + "No path for this document";
+//                System.out.println(searchResult);
+//            }
+//
+//        }
+//
+//    }
 
 
     /** Simple command-line based search demo. */
@@ -175,7 +175,21 @@ public class luceneInterface {
         lp.indexDoc("efg", "title",  "public int", "contents",  "public int world");
         writer.close();
 
-        lp.query(index,stopwords,"static", 5);
+        List<Document> docs = lp.query(index,stopwords,"static", 5);
+
+        String searchResult="";
+        for (int i=0; i<docs.size(); i++) {
+            String docid = docs.get(i).get("docid");
+            if (docid != null) {
+                searchResult = "static"+"\t"+path + "\t"
+                        + (i+1);
+                System.out.println(searchResult);
+            } else {
+                searchResult = (i+1) + ". " + "No path for this document";
+                System.out.println(searchResult);
+            }
+
+        }
 
     }
 }
