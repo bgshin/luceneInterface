@@ -38,14 +38,14 @@
     </target>
     <target description="Build all projects which reference this project. Useful to propagate changes." name="build-refprojects"/>
 
-    <target name="lucenePython">
-        <java classname="lucenePython" failonerror="true" fork="yes">
+    <target name="luceneInterface">
+        <java classname="luceneInterface" failonerror="true" fork="yes">
             <jvmarg line="-Xmx1g"/>
             <classpath refid="Bonggun.classpath"/>
         </java>
     </target>
-    <target name="jar" depends="lucenePython">
-        <jar jarfile="./bin/lucenePython.jar" basedir="./bin/">
+    <target name="jar" depends="luceneInterface">
+        <jar jarfile="./bin/luceneInterface.jar" basedir="./bin/">
         </jar>
     </target>
 </project>
