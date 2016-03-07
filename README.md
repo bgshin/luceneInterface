@@ -8,7 +8,7 @@
 git clone git@github.com:bgshin/luceneInterface.git
 cd luceneInterface
 ant clean build jar
-cp ./bin/luceneInterface.jar
+ls ./bin/luceneInterface.jar 
 ```
 
 ## Set classpath
