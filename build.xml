@@ -9,12 +9,21 @@
     <property name="debuglevel" value="source,lines,vars"/>
     <property name="target" value="1.7"/>
     <property name="source" value="1.7"/>
+
+    <property name="src.dir"       value="src"/>
+    <property name="lib.dir"       value="lib"/>
+
     <path id="Bonggun.classpath">
         <pathelement location="bin"/>
         <pathelement location="lib/lucene-core-5.4.1-SNAPSHOT.jar"/>
         <pathelement location="lib/lucene-analyzers-common-5.4.1-SNAPSHOT.jar"/>
         <pathelement location="lib/lucene-queryparser-5.4.1-SNAPSHOT.jar"/>
     </path>
+
+    <path id="external.jars">
+        <fileset dir="${lib.dir}" includes="**/*.jar"/>
+    </path>
+
     <target name="init">
         <mkdir dir="bin"/>
         <copy includeemptydirs="false" todir="bin">
@@ -45,7 +54,13 @@
         </java>
     </target>
     <target name="jar" depends="luceneInterface">
-        <jar jarfile="./bin/luceneInterface.jar" basedir="./bin/">
+        <jar destfile="./bin/luceneInterface.jar"
+             basedir="./bin/">
+             <!--manifest="${manifest.file}">-->
+            <fileset dir="./bin" includes="**/*.class" />
+            <zipgroupfileset dir="./lib" includes="**/*.jar" />
         </jar>
+        <!--<jar jarfile="./bin/luceneInterface.jar" basedir="./bin/">-->
+        <!--</jar>-->
     </target>
 </project>

@@ -25,6 +25,8 @@ import org.apache.lucene.search.Query;
 import org.apache.lucene.search.ScoreDoc;
 import org.apache.lucene.search.TopDocs;
 import org.apache.lucene.search.similarities.BM25Similarity;
+import org.apache.lucene.search.similarities.ClassicSimilarity;
+import org.apache.lucene.search.similarities.TFIDFSimilarity;
 import org.apache.lucene.store.Directory;
 import org.apache.lucene.store.FSDirectory;
 
@@ -42,13 +44,23 @@ public class luceneInterface {
     public luceneInterface(){
     }
 
-    public static void makeIndexWriter(String indexPath, String stopPath) throws IOException {
+    public static void makeIndexWriter(String indexPath, String stopPath, String sim) throws IOException {
         System.out.println("[makeIndexWriter] started");
         System.out.println("[makeIndexWriter]"+stopPath);
         Directory dir = FSDirectory.open(Paths.get(indexPath));
         Analyzer analyzer = new EnglishAnalyzer(
                 StopFilter.makeStopSet(mygetStopwords(stopPath)));
         IndexWriterConfig iwc = new IndexWriterConfig(analyzer);
+
+
+        if (sim.equals("TFIDF"))
+            iwc.setSimilarity(new ClassicSimilarity());
+        else if (sim.equals("BM25"))
+            iwc.setSimilarity(new BM25Similarity());
+        else
+            iwc.setSimilarity(new BM25Similarity());
+
+
         writer = new IndexWriter(dir, iwc);
     }
 
@@ -88,14 +100,20 @@ public class luceneInterface {
         return stopwords;
     }
 
-    public static List<Document> query(String index, String stoppath, String question, int numResult)  throws Exception {
+    public static List<Document> query(String index, String stoppath, String question, int numResult, String sim)  throws Exception {
         IndexReader reader = DirectoryReader.open(FSDirectory.open(Paths.get(index)));
         IndexSearcher searcher = new IndexSearcher(reader);
 
         Analyzer analyzer = new EnglishAnalyzer(
                 StopFilter.makeStopSet(mygetStopwords(stoppath)));
 
-        searcher.setSimilarity(new BM25Similarity());
+        if (sim.equals("TFIDF"))
+            searcher.setSimilarity(new ClassicSimilarity());
+        else if (sim.equals("BM25"))
+            searcher.setSimilarity(new BM25Similarity());
+        else
+            searcher.setSimilarity(new BM25Similarity());
+
         String field = "contents";
         QueryParser parser = new QueryParser(field, analyzer);
         Query query = parser.parse(parser.escape(question));
@@ -105,12 +123,12 @@ public class luceneInterface {
         List<Document> docs = new ArrayList<Document>();
 
         int numTotalHits = results.totalHits;
-        System.out.println(numTotalHits + " total matching documents");
+//        System.out.println(numTotalHits + " total matching documents");
 
         int end = Math.min(numTotalHits, numResult);
 
         String searchResult = "";
-        System.out.println("Only results 1 - " + hits.length);
+//        System.out.println("Only results 1 - " + hits.length);
 
 
         for (int i = 0; i < end; i++) {
@@ -170,18 +188,19 @@ public class luceneInterface {
         String stopwords="/Users/bong/IdeaProjects/irp1/src/stopwords.txt";
         luceneInterface lp = new luceneInterface();
 
-        lp.makeIndexWriter(index,stopwords);
-        lp.indexDoc("abc", "title",  "static void", "contents",  "static void world");
-        lp.indexDoc("efg", "title",  "public int", "contents",  "public int world");
+        lp.makeIndexWriter(index,stopwords, "TFIDF");
+        lp.indexDoc("abc", "title",  "static void", "contents",  "elim static void world");
+        lp.indexDoc("efg", "title",  "public int", "contents",  "eliminating public int world");
         writer.close();
 
-        List<Document> docs = lp.query(index,stopwords,"static", 5);
+        String q = "eliminates";
+        List<Document> docs = lp.query(index,stopwords, q, 5, "TFIDF");
 
         String searchResult="";
         for (int i=0; i<docs.size(); i++) {
             String docid = docs.get(i).get("docid");
             if (docid != null) {
-                searchResult = "static"+"\t"+path + "\t"
+                searchResult = q+"\t"+docid + "\t"
                         + (i+1);
                 System.out.println(searchResult);
             } else {
