@@ -148,36 +148,14 @@ public class IrqaQuery {
 
 
 
-    public static void batch_query() throws Exception  {
-        String path = "";
-//        String index = "/Users/bong/works/research/irqa/index/";
-//        String index = "/Users/bong/works/research/irqa/index_all2/";
-//        String index = "/Users/bong/works/research/irqa/index_all_2048/";
-//        String index = "/Users/bong/works/research/irqa/index_all_1024/";
-//        String index = "/Users/bong/works/research/irqa/index_all_512/";
-//        String index = "/Users/bong/works/research/irqa/index_all_256/";
-//        String index = "/Users/bong/works/research/irqa/index_all_128/";
-//        String index = "/Users/bong/works/research/irqa/index_all_64/";
-//        String index = "/Users/bong/works/research/irqa/index_all_32/";
-//        String index = "/Users/bong/works/research/irqa/index_all_16/";
-//        String index = "/Users/bong/works/research/irqa/index_all_8/";
-//        String index = "/Users/bong/works/research/irqa/index_all_4/";
-        String index = "/Users/bong/works/research/irqa/index_all_2/";
+    public static void batch_query(String basedir, String indexpath) throws Exception  {
 
-//        String index = "/Users/bong/works/research/irqa/index_all/";
-        String stopwords="/Users/bong/IdeaProjects/irp1/src/stopwords.txt";
+        indexpath = basedir+indexpath;
+        String stopwords=basedir+"/stopwords.txt";
         IrqaQuery lp = new IrqaQuery();
 
-//        lp.makeIndexWriter(index,stopwords, "TFIDF");
-//        lp.indexDoc("abc", "title",  "static void", "contents",  "elim static void world");
-//        lp.indexDoc("efg", "title",  "public int", "contents",  "eliminating public int world");
-//        writer.close();
-
-//        String q = "eliminates";
-//        List<Document> docs = lp.query(index,stopwords, q, 5, "TFIDF");
-
         JSONParser parser = new JSONParser();
-        JSONArray questions = (JSONArray) parser.parse(new FileReader("/Users/bong/works/research/irqa/data/questions.json"));
+        JSONArray questions = (JSONArray) parser.parse(new FileReader(basedir+"/data/questions.json"));
 
         long startTime = System.currentTimeMillis();
         int answercount=0;
@@ -189,8 +167,7 @@ public class IrqaQuery {
             String query = (String) q.get("question");
             String gold_id = (String) q.get("paragraph_id");
 
-//            System.out.println(query);
-            List<Document> docs = lp.query(index,stopwords, query, 5, "BM25");
+            List<Document> docs = lp.query(indexpath,stopwords, query, 5, "BM25");
 
 
             questioncount++;
@@ -428,15 +405,52 @@ public class IrqaQuery {
 
     /** Simple command-line based search demo. */
     public static void main(String[] args) throws Exception {
-//        batch_query();
-        String basedir = "/Users/bong/works/research/irqa";
+//        String basedir = "/Users/bong/works/research/irqa";
+        String basedir = "/home/bgshin/works/irqa";
 
-        JSONParser parser = new JSONParser();
-        String lookup_sentfn = basedir+"/data/wikilookup3_sentence.json";
-        Object obj1 = parser.parse(new FileReader(lookup_sentfn));
-        JSONObject lookup_sent = (JSONObject) obj1;
+        List<String> exps = new ArrayList<>();
 
-        pipeline(basedir, "dev", lookup_sent);
+        exps.add("/index_all_2048/");
+        exps.add("/index_all_1024/");
+        exps.add("/index_all_512/");
+        exps.add("/index_all_256/");
+        exps.add("/index_all_128/");
+        exps.add("/index_all_64/");
+        exps.add("/index_all_32/");
+        exps.add("/index_all_16/");
+        exps.add("/index_all_8/");
+        exps.add("/index_all_4/");
+        exps.add("/index_all_2/");
+
+        String path = "";
+//        String index = "/Users/bong/works/research/irqa/index/";
+//        String index = "/Users/bong/works/research/irqa/index_all2/";
+//        String index = "/Users/bong/works/research/irqa/index_all_2048/";
+//        String index = "/Users/bong/works/research/irqa/index_all_1024/";
+//        String index = "/Users/bong/works/research/irqa/index_all_512/";
+//        String index = "/Users/bong/works/research/irqa/index_all_256/";
+//        String index = "/Users/bong/works/research/irqa/index_all_128/";
+//        String index = "/Users/bong/works/research/irqa/index_all_64/";
+//        String index = "/Users/bong/works/research/irqa/index_all_32/";
+//        String index = "/Users/bong/works/research/irqa/index_all_16/";
+//        String index = "/Users/bong/works/research/irqa/index_all_8/";
+//        String index = "/Users/bong/works/research/irqa/index_all_4/";
+        String index = "/Users/bong/works/research/irqa/index_all_2/";
+
+        for (int i=0; i<exps.size(); i++) {
+            String indexpath = exps.get(i);
+            batch_query(basedir,indexpath);
+        }
+
+
+//        String basedir = "/Users/bong/works/research/irqa";
+//
+//        JSONParser parser = new JSONParser();
+//        String lookup_sentfn = basedir+"/data/wikilookup3_sentence.json";
+//        Object obj1 = parser.parse(new FileReader(lookup_sentfn));
+//        JSONObject lookup_sent = (JSONObject) obj1;
+//
+//        pipeline(basedir, "dev", lookup_sent);
 //        pipeline(basedir, "test", lookup_sent);
 //        pipeline(basedir, "train", lookup_sent);
     }
