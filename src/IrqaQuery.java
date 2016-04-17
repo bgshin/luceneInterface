@@ -149,8 +149,7 @@ public class IrqaQuery {
 
 
     public static void batch_query(String basedir, String indexpath) throws Exception  {
-
-        indexpath = basedir+indexpath;
+        indexpath = basedir+"/index_all"+indexpath+"/";
         String stopwords=basedir+"/stopwords.txt";
         IrqaQuery lp = new IrqaQuery();
 
@@ -186,7 +185,7 @@ public class IrqaQuery {
                 System.out.format("[%d] midtime=%f\n", questioncount, midtime / 1000.0);
             }
         }
-        System.out.format("acc=%f\n", answercount*1.0/questioncount*100);
+        System.out.format("acc=%f\t%d\t%d\n", answercount*1.0/questioncount*100, answercount, questioncount);
         long estimatedTime = System.currentTimeMillis() - startTime;
         System.out.println(estimatedTime/1000.0);
     }
@@ -244,19 +243,9 @@ public class IrqaQuery {
     }
 
 
-    public static void pipeline(String basedir, String set, JSONObject lookup_sent) throws Exception {
+    public static void pipeline(String basedir, String indexpath, String set, JSONObject lookup_sent) throws Exception {
         System.out.println(set + " started...");
-//        String index = basedir+"/index/";
-//        String index = basedir+"/index_all2/";
-//        String index = basedir+"/index_all_2048/";
-//        String index = basedir+"/index_all_1024/";
-//        String index = basedir+"/index_all_512/";
-//        String index = basedir+"/index_all_256/";
-//        String index = basedir+"/index_all_128/";
-//        String index = basedir+"/index_all_64/";
-        String index = basedir+"/index_all_32/";
-//        String index = basedir+"/index_all_16/";
-//        String index = basedir+"/index_all_8/";
+        String index = basedir+"/index_all"+indexpath+"/";
 
         String stopwords=basedir+"/stopwords.txt";
         IrqaQuery lp = new IrqaQuery();
@@ -288,7 +277,9 @@ public class IrqaQuery {
         BufferedReader br = new BufferedReader(
                 new InputStreamReader(new FileInputStream(file)));
 
-        BufferedWriter outfile = new BufferedWriter(new FileWriter("new_validate.txt"));
+        String outfilename =
+                String.format(basedir+"/stats/data_for_analysis/newTACL/newsplit%s_%s.txt", indexpath, set);
+        BufferedWriter outfile = new BufferedWriter(new FileWriter(outfilename));
 
         int numline=0;
 
@@ -346,11 +337,6 @@ public class IrqaQuery {
 //            String gold_q =(String) rl.get("question");
 
 
-
-
-//            if (gold_q.compareTo(query)!=0)
-//                System.out.println(i);
-
             for (Document d:docs) {
                 String docid = d.get("docid");
 
@@ -364,13 +350,16 @@ public class IrqaQuery {
                                 sentlistAll.get(i).get(j).compareTo("   ")==0
                                 )
                             continue;
-//                        System.out.printf("%s\t%s\t%s\n", query, sentlistAll.get(i).get(j), alistAll.get(i).get(j));
+                        String outstring =
+                                String.format("%s\t%s\t%s\n", query, sentlistAll.get(i).get(j), alistAll.get(i).get(j));
+                        outfile.write(outstring);
                     }
                 }
                 else {
 //                    get_sentence_from_lookup();
 //                    lookup_sent.get(docid)
-                    JSONArray sents = (JSONArray) lookup_sent.get("Timeline_of_classical_mechanics-Abstract");
+//                    JSONArray sents = (JSONArray) lookup_sent.get("Timeline_of_classical_mechanics-Abstract");
+                    JSONArray sents = (JSONArray) lookup_sent.get(docid);
 
                     if (sents==null) {
                         System.out.println("noway, "+docid + "\n");
@@ -384,7 +373,11 @@ public class IrqaQuery {
                                     sents.get(kk).toString().compareTo("   ")==0
                                     )
                                 continue;
-                            System.out.printf("%s\t%s\t%s\n", query, sents.get(kk).toString(), "0");
+                            String outstring =
+                                    String.format("%s\t%s\t%s\n", query, sents.get(kk).toString(), "0");
+                            outfile.write(outstring);
+
+//                            System.out.printf("%s\t%s\t%s\n", query, sents.get(kk).toString(), "0");
 //                            System.out.println(sents.get(kk));
                         }
                     }
@@ -410,32 +403,18 @@ public class IrqaQuery {
 
         List<String> exps = new ArrayList<>();
 
-        exps.add("/index_all_2048/");
-        exps.add("/index_all_1024/");
-        exps.add("/index_all_512/");
-        exps.add("/index_all_256/");
-        exps.add("/index_all_128/");
-        exps.add("/index_all_64/");
-        exps.add("/index_all_32/");
-        exps.add("/index_all_16/");
-        exps.add("/index_all_8/");
-        exps.add("/index_all_4/");
-        exps.add("/index_all_2/");
-
-        String path = "";
-//        String index = "/Users/bong/works/research/irqa/index/";
-//        String index = "/Users/bong/works/research/irqa/index_all2/";
-//        String index = "/Users/bong/works/research/irqa/index_all_2048/";
-//        String index = "/Users/bong/works/research/irqa/index_all_1024/";
-//        String index = "/Users/bong/works/research/irqa/index_all_512/";
-//        String index = "/Users/bong/works/research/irqa/index_all_256/";
-//        String index = "/Users/bong/works/research/irqa/index_all_128/";
-//        String index = "/Users/bong/works/research/irqa/index_all_64/";
-//        String index = "/Users/bong/works/research/irqa/index_all_32/";
-//        String index = "/Users/bong/works/research/irqa/index_all_16/";
-//        String index = "/Users/bong/works/research/irqa/index_all_8/";
-//        String index = "/Users/bong/works/research/irqa/index_all_4/";
-        String index = "/Users/bong/works/research/irqa/index_all_2/";
+//        exps.add("_c_2048");
+//        exps.add("_c_1024");
+//        exps.add("_c_512");
+//        exps.add("_c_256");
+//        exps.add("_c_128");
+//        exps.add("_c_64");
+//        exps.add("_c_32");
+//        exps.add("_c_16");
+//        exps.add("_c_8");
+//        exps.add("_c_4");
+//        exps.add("_c_2");
+        exps.add("_c_0");
 
         for (int i=0; i<exps.size(); i++) {
             String indexpath = exps.get(i);
@@ -443,16 +422,26 @@ public class IrqaQuery {
         }
 
 
-//        String basedir = "/Users/bong/works/research/irqa";
-//
+
+
+
+
+
+        // pipeline //////////////////////////////////////////////////////////////
+
 //        JSONParser parser = new JSONParser();
-//        String lookup_sentfn = basedir+"/data/wikilookup3_sentence.json";
+//        String lookup_sentfn = basedir+"/data/wikilookup_clean_sentence.json";
 //        Object obj1 = parser.parse(new FileReader(lookup_sentfn));
 //        JSONObject lookup_sent = (JSONObject) obj1;
 //
-//        pipeline(basedir, "dev", lookup_sent);
-//        pipeline(basedir, "test", lookup_sent);
-//        pipeline(basedir, "train", lookup_sent);
+//        for (int i=0; i<exps.size(); i++) {
+//            String indexpath = exps.get(i);
+//            pipeline(basedir, indexpath, "dev", lookup_sent);
+//            pipeline(basedir, indexpath, "test", lookup_sent);
+//            pipeline(basedir, indexpath, "train", lookup_sent);
+//        }
+        // pipeline //////////////////////////////////////////////////////////////
+
     }
 }
 

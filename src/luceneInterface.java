@@ -184,16 +184,16 @@ public class luceneInterface {
     public static void main(String[] args) throws Exception {
 
         String path = "";
-        String index = "./index/";
+        String index = "./index_test/";
         String stopwords="/Users/bong/IdeaProjects/irp1/src/stopwords.txt";
         luceneInterface lp = new luceneInterface();
 
         lp.makeIndexWriter(index,stopwords, "TFIDF");
         lp.indexDoc("abc", "title",  "static void", "contents",  "elim static void world");
-        lp.indexDoc("efg", "title",  "public int", "contents",  "eliminating public int world");
+        lp.indexDoc("efg", "title",  "public int", "contents",  "eliminating public int world apples indices");
         writer.close();
 
-        String q = "eliminates";
+        String q = "apple";
         List<Document> docs = lp.query(index,stopwords, q, 5, "TFIDF");
 
         String searchResult="";
