@@ -20,10 +20,7 @@ import org.apache.lucene.analysis.en.EnglishAnalyzer;
 import org.apache.lucene.document.*;
 import org.apache.lucene.index.*;
 import org.apache.lucene.queryparser.classic.QueryParser;
-import org.apache.lucene.search.IndexSearcher;
-import org.apache.lucene.search.Query;
-import org.apache.lucene.search.ScoreDoc;
-import org.apache.lucene.search.TopDocs;
+import org.apache.lucene.search.*;
 import org.apache.lucene.search.similarities.BM25Similarity;
 import org.apache.lucene.search.similarities.ClassicSimilarity;
 import org.apache.lucene.search.similarities.TFIDFSimilarity;
@@ -118,7 +115,18 @@ public class luceneInterface {
         QueryParser parser = new QueryParser(field, analyzer);
         Query query = parser.parse(parser.escape(question));
 
-        TopDocs results = searcher.search(query, numResult);
+        BooleanQuery.Builder bqb = new BooleanQuery.Builder();
+        bqb.add(new TermQuery(new Term("contents", parser.escape(question))), BooleanClause.Occur.SHOULD);
+        bqb.add(new TermQuery(new Term("sec", parser.escape(question))), BooleanClause.Occur.SHOULD);
+
+
+
+//        Term term = new Term(field, question);
+//        Query query = new TermQuery(term);
+
+//        TopDocs results = searcher.search(query, numResult);
+        TopDocs results = searcher.search(parser.parse(bqb.build().toString()), numResult);
+
         ScoreDoc[] hits = results.scoreDocs;
         List<Document> docs = new ArrayList<Document>();
 

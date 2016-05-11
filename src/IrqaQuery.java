@@ -398,12 +398,12 @@ public class IrqaQuery {
 
     /** Simple command-line based search demo. */
     public static void main(String[] args) throws Exception {
-//        String basedir = "/Users/bong/works/research/irqa";
-        String basedir = "/home/bgshin/works/irqa";
+        String basedir = "/Users/bong/works/research/irqa";
+//        String basedir = "/home/bgshin/works/irqa";
 
         List<String> exps = new ArrayList<>();
 
-//        exps.add("_c_2048");
+        exps.add("_c_2048");
 //        exps.add("_c_1024");
 //        exps.add("_c_512");
 //        exps.add("_c_256");
@@ -414,7 +414,7 @@ public class IrqaQuery {
 //        exps.add("_c_8");
 //        exps.add("_c_4");
 //        exps.add("_c_2");
-        exps.add("_c_0");
+//        exps.add("_c_0");
 
         for (int i=0; i<exps.size(); i++) {
             String indexpath = exps.get(i);
